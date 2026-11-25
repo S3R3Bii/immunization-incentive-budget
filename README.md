@@ -4,9 +4,9 @@ Should a funder spend an extra $12 per eligible child to add family incentives t
 
 The Rajasthan trial found a gain of +20.8 percentage points in full-series completion (95% CI 9.3 to 32.3).
 
-**Bottom line.** At GiveWell’s 6× funding bar, the broader vaccine mix supports $6.47 per eligible child if 22.2% of the trial gain transfers, or $9.63 at the reference assumption of 33.0%. Counting only a first measles dose gives a single-antigen floor of $0.56 or $0.83, respectively. Both comparisons include indirect under-five deaths.
+**Bottom line.** At GiveWell’s 6× funding bar, the broader vaccine mix supports $9.63 per eligible child at the reference assumption of 33.0% of the trial gain transferring, or $6.47 under the conservative reporting assumption of 22.2%. Counting only a first measles dose gives a single-antigen floor of $0.83 or $0.56, respectively. Both comparisons include indirect under-five deaths.
 
-**Decision.** I would decline the $12 bid on the under-five evidence. GiveWell’s full Bauchi model roughly doubles its under-five value (10.5× to 20.0×). If that same uplift applied here, the conservative ceiling would rise to $12.32. I would reconsider with local evidence on which doses children would otherwise miss, when they would miss them, and the costs of delivering them.
+**Decision.** I would decline the $12 bid on the under-five evidence. GiveWell’s full Bauchi model roughly doubles its under-five value (10.5× to 20.0×). If that same uplift applied here, the conservative ceiling would rise to $12.32 and the reference ceiling to $18.34. I use both figures only as a sensitivity check on benefits and program adjustments beyond the under-five evidence. I would reconsider with local evidence on which doses children would otherwise miss, when they would miss them, and the costs of delivering them.
 
 [Trial and appendices](https://www.povertyactionlab.org/sites/default/files/research-paper/Improving%20immunisation%20coverage%20in%20rural%20India.pdf) · [Funding bar](https://www.givewell.org/how-we-work/our-criteria/cost-effectiveness/cost-effectiveness-models) · [Under-five calculations](results/mortality_bridge.csv) · [Broader-benefit sensitivity](results/package_scope.csv)
 
