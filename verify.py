@@ -124,3 +124,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    import verify_revision
+
+    verify_revision.main()

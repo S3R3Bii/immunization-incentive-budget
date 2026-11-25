@@ -16,8 +16,10 @@ jobs:
         run: |
           python verify.py
           python analyze.py
+          python trial_extension.py
+          python grant_model.py
           python verify.py
-          git diff --exit-code -- 'results/*.csv'
+          git diff --exit-code -- 'data/*.csv' 'results/*.csv'
       - name: Exercise the example bid and render the figure
         run: |
           output=$(python price_bid.py --incremental-cost 12000 --eligible 1000 --ceiling 100)
