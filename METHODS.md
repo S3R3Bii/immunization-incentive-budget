@@ -1,0 +1,29 @@
+# Trial reconstruction and budget assumptions
+
+## Population and outcome
+
+Banerjee, Duflo, Glennerster and Kothari randomized 134 villages in a disadvantaged area served by Seva Mandir in rural Rajasthan. Families in the incentive arm could receive lentils for vaccinations and plates on completion. The policy comparison here is adding the incentive when a monthly reliable camp is already available. Existing services provide context for the separate decision to introduce a camp. [Trial](https://pubmed.ncbi.nlm.nih.gov/20478960/) · [Study description](https://www.povertyactionlab.org/evaluation/improving-immunization-rates-through-regular-camps-and-incentives-india)
+
+Source: *Improving Immunization Coverage in Rural India*, Harvard Dataverse, version 4.3. The public endline tabular file has ID 1581016. Its SHA-256 is `22dae428182d602acd9201d22989e52a97c36e5b20ca73b1247d5a8fb1caadde`. The authors' merge script defines completion as at least five reported shots at age 12–36 months inclusive. Their analysis script distinguishes direct from neighboring villages. The archive and study were consulted on November 25, 2026. [Archive](https://doi.org/10.7910/DVN/4IYQLO) · [Source file](https://dataverse.harvard.edu/api/access/datafile/1581016) · [Outcome coding](https://dataverse.harvard.edu/api/access/datafile/2435320) · [Original analysis](https://dataverse.harvard.edu/api/access/datafile/2435322)
+
+The extraction processes the public endline file in memory. Of 5,565 records, 1,372 came from neighboring villages and 2,566 of the remainder had a missing or out-of-range age. Six of the 1,627 eligible children lacked a shot count, all in the control group. The 1,621 observed outcomes reproduce the published numerators and denominators in all three arms. The observed control group represents 73 villages out of 74 assigned. The two intervention arms each contribute all 30 villages. Survey, eligibility and outcome counts answer different questions. No individual records, household IDs or location keys are in this repository. [Cohort flow](data/cohort_flow.csv) · [Grouped counts](data/village_counts.csv)
+
+## Three ways to examine the incentive contrast
+
+- **Eligible child.** Divide total completions by total observed eligible children within each arm and subtract the camp-only rate from the incentive rate. The six missing control outcomes have no effect on this primary contrast. Across the two extreme imputations, control completion ranges from 5.77% to 6.47%.
+- **Typical observed village.** Calculate each village's observed completion rate, average village rates within each arm, then take their difference. Smaller villages receive more weight per child under this estimand.
+- **Influence.** Omit one contributing village, recalculate the child-weighted difference, and repeat for all 60 primary-comparison villages. The range measures single-village influence. It answers a different question from sampling uncertainty.
+
+For each arm with K observed villages, total child count N and pooled completion rate p, the estimated variance is K/(K−1) times the sum of (completions − p × observed children)² across villages, divided by N². Add the two arm variances and use a two-sided t critical value with Welch–Satterthwaite degrees of freedom. This is a first-order, unstratified village-cluster approximation. It allows arbitrary within-village association and treats villages in different arms as independent for variance estimation. The primary interval has about 56.2 degrees of freedom. The original paper used its own regression specifications. These intervals do not quantify transport to another place or period.
+
+## Translating effectiveness to price
+
+Let W be the funder's dollars per additional completion, d the trial gain as a proportion, and r the assumed share of that gain retained locally. Maximum incremental cost per eligible child is **W × d × r**. For an incremental bid B and eligible population N, the required local gain is **B / (N × W)**. Feasibility also requires enough children still unvaccinated or partly vaccinated at baseline to attain that gain. The calculator deliberately leaves the local coverage and counterfactual assessment to the bid review.
+
+The published grid uses W of $50, $100 and $250 and r of 25%, 50% and 100%. These are sensitivity inputs selected to make the decision legible. They are neither empirical transfer estimates nor a particular funder's policy. The shaded chart propagates trial sampling uncertainty with W and r fixed. A decision on lives saved or cost per disability-adjusted life year would also need local disease risk, timing and vaccine effectiveness.
+
+The original investigators reported average provider costs of **$27.94 per fully immunized child with incentives** and **$55.83 without**. The staffed camp had fixed opening costs, so higher attendance could reduce average cost. These historical averages use a different denominator from the incremental bid per eligible child. Subtracting the two would give a misleading grant budget. [Study cost discussion](https://pmc.ncbi.nlm.nih.gov/articles/PMC2871989/) · [Corrected abstract with arm assignments](https://pubmed.ncbi.nlm.nih.gov/20478960/)
+
+## Reproduction
+
+`python prepare_data.py` downloads and hashes the public survey and reconstructs the two small data tables. `python analyze.py` rebuilds all numerical results from those tables offline. `python verify.py` uses independent SQLite aggregates, published counts and an alternative variance calculation to check the outputs. `python figure.py` redraws the figure. At release, a separate pandas extraction from the public file matched every published village count tuple. [Study design](DESIGN.md)

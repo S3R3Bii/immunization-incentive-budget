@@ -18,3 +18,9 @@ jobs:
           python analyze.py
           python verify.py
           git diff --exit-code -- 'results/*.csv'
+      - name: Exercise the example bid and render the figure
+        run: |
+          output=$(python price_bid.py --incremental-cost 12000 --eligible 1000 --ceiling 100)
+          echo "$output" | grep -F 'Required local completion gain: 12.00 percentage points'
+          echo "$output" | grep -F 'Required share of the trial point estimate: 57.7%'
+          python figure.py
