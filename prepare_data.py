@@ -1,4 +1,5 @@
 """Rebuild anonymous village totals from the public endline file in memory."""
+
 import csv
 import hashlib
 import io
@@ -38,7 +39,7 @@ def main():
         if not row["agemon"] or not 12 <= float(row["agemon"]) <= 36:
             flow["age_missing_or_outside_12_to_36"] += 1
             continue
-        arm, = [name for col, name in ARMS.items() if float(row[col]) == 1]
+        (arm,) = [name for col, name in ARMS.items() if float(row[col]) == 1]
         village = row["locid"]
         assert village and arm_by_village.setdefault(village, arm) == arm
         group = groups[arm, village]
@@ -52,12 +53,14 @@ def main():
         group["completed"] += shots >= 5
         flow["eligible_observed"] += 1
     # Sorting on counts alone discards the village key and the source row order.
-    rows = sorted((arm, g["observed"], g["completed"], g["missing"])
-                  for (arm, _), g in groups.items())
+    rows = sorted(
+        (arm, g["observed"], g["completed"], g["missing"]) for (arm, _), g in groups.items()
+    )
     data = ROOT / "data"
     data.mkdir(exist_ok=True)
-    (data / "village_counts.csv").write_bytes(csv_bytes(
-        ["arm", "observed", "completed", "missing"], rows))
+    (data / "village_counts.csv").write_bytes(
+        csv_bytes(["arm", "observed", "completed", "missing"], rows)
+    )
     (data / "cohort_flow.csv").write_bytes(csv_bytes(["stage", "rows"], sorted(flow.items())))
 
 

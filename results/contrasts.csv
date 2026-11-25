@@ -1,0 +1,4 @@
+arm,comparator,gain_pp,ci_low_pp,ci_high_pp,equal_village_pp,omit_one_low_pp,omit_one_high_pp,welch_df
+camp_incentive,camp,20.801503,9.337281,32.265725,16.113719,19.044349,23.005123,56.235977
+camp,control,12.127999,4.132970,20.123028,12.548777,10.218655,13.127551,38.519081
+camp_incentive,control,32.929502,23.541038,42.317966,28.662496,31.172348,35.133122,35.597878
