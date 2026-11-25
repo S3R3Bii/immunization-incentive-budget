@@ -29,7 +29,7 @@ def extract(raw):
     for row in csv.DictReader(io.StringIO(raw.decode("utf-8-sig")), delimiter="\t"):
         if not row["agemon"] or not 12 <= float(row["agemon"]) <= 36:
             continue
-        arm, = [name for col, name in ARMS.items() if float(row[col]) == 1]
+        (arm,) = [name for col, name in ARMS.items() if float(row[col]) == 1]
         neighbor = int(float(row["spillover"]))
         assert neighbor in (0, 1)
         group = groups[neighbor, arm]
@@ -45,14 +45,15 @@ def extract(raw):
         group["started"] += shots >= 1
         group["completed"] += shots >= 5
         if not neighbor and arm != "control":
-            block, = [b for b in blocks if float(row[b]) == 1]
+            (block,) = [b for b in blocks if float(row[b]) == 1]
             village = villages[block, arm, row["locid"]]
             village["observed"] += 1
             village["completed"] += shots >= 5
     keys = ("observed", "started", "completed", "scar_observed", "scar")
     grouped = [(n, arm, *(v[key] for key in keys)) for (n, arm), v in sorted(groups.items())]
-    public_villages = sorted((b, arm, v["observed"], v["completed"])
-                             for (b, arm, _), v in villages.items())
+    public_villages = sorted(
+        (b, arm, v["observed"], v["completed"]) for (b, arm, _), v in villages.items()
+    )
     return {
         "mechanism_counts.csv": csv_bytes(["neighbor", "arm", *keys], grouped),
         "block_counts.csv": csv_bytes(["block", "arm", "observed", "completed"], public_villages),
