@@ -104,10 +104,10 @@ def verify_budgets():
         1 / (1 + sum(variances) / s**2) for s in (paid - sms, paid - control, p["ni_full_gain"])
     ]
     error = p["overreport_difference"] - p["underreport_difference"]
-    recall = [(d - error) / d, (d - error / 2) / d, 1.0]
+    recall = [max(0, (d - error) / d), 1 - p["ni_internal_discount"], 1.0]
     transfer = [(1 - control) / (1 - base), (1 - p["bauchi_basic"]) / (1 - base), 1.0]
     central = prior[1] * recall[1] * transfer[1]
-    direct = p["measles_risk"] * p["measles_efficacy"]
+    measles = p["measles_risk"] * (1 + p["indirect_per_direct"]) * p["measles_efficacy"]
     bar = p["benchmark"] * p["bar"]
     sensitivity = rows("results/validity_sensitivity.csv")
     triples = {"shrinkage": prior, "recall": recall, "transfer": transfer}
@@ -123,7 +123,7 @@ def verify_budgets():
         check(r["retained"], retain)
         check(r["extra_per_eligible"], d * retain)
         check(r["completion_cap_usd"], 100 * d * retain)
-        check(r["measles_cap_usd"], d * retain * direct * p["death_value"] / bar)
+        check(r["measles_cap_usd"], d * retain * measles * p["death_value"] / bar)
     equal = mean(y / n for n, y in clusters["camp_incentive"]) - mean(
         y / n for n, y in clusters["camp"]
     )
@@ -139,20 +139,29 @@ def verify_budgets():
         check(r["max_at_100_full_transfer"], 100 * effect)
         check(r["max_at_100_adjusted"], 100 * effect * central)
         check(r["needed_retention_at_12_and_100"], 0.12 / effect)
-        check(r["max_at_6x_measles"], effect * central * direct * p["death_value"] / bar)
+        check(r["max_at_6x_measles"], effect * central * measles * p["death_value"] / bar)
     cases = {
-        "last_visit_measles": direct,
+        "last_visit_measles": measles,
         "nigeria_package_pattern": p["vpd_risk"]
         * p["package_efficacy"]
         * p["ni_weighted_gain"]
         / p["ni_full_gain"],
     }
     bridge = rows("results/mortality_bridge.csv")
-    assert {r["case"] for r in bridge} == cases.keys() and len(bridge) == len(cases)
+    retentions = {
+        "reference": central,
+        "conservative": prior[1] * max(0, (d - error / 2) / d) * transfer[1],
+    }
+    assert len(bridge) == len(retentions) * len(cases)
+    assert {(r["scenario"], r["case"]) for r in bridge} == {
+        (scenario, case) for scenario in retentions for case in cases
+    }
     for r in bridge:
         cost = float(r["usd_per_eligible"])
         check(cost, 12)
-        per_dollar = d * central / cost
+        retain = retentions[r["scenario"]]
+        check(r["retained"], retain)
+        per_dollar = d * retain / cost
         death_rate = per_dollar * cases[r["case"]]
         units = death_rate * p["death_value"]
         for key, val in [
@@ -166,6 +175,19 @@ def verify_budgets():
             ("needed_retention", cost * bar / (d * cases[r["case"]] * p["death_value"])),
         ]:
             check(r[key], val, 1e-10)
+
+
+    scope = rows("results/package_scope.csv")
+    assert len(scope) == len(retentions) and {r["scenario"] for r in scope} == retentions.keys()
+    package_value = d * cases["nigeria_package_pattern"] * p["death_value"]
+    relative_value = p["ni_full_multiple"] / p["ni_under5_multiple"]
+    for r in scope:
+        keep = retentions[r["scenario"]]
+        check(r["retained"], keep)
+        check(r["under5_ceiling_usd"], keep * package_value / bar)
+        check(r["illustrative_full_ceiling_usd"], keep * package_value * relative_value / bar)
+        check(r["under5_break_even_retention"], 12 * bar / package_value)
+        check(r["illustrative_full_break_even_retention"], 12 * bar / (relative_value * package_value))
 
 
 def main():
